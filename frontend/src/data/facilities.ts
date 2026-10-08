@@ -7,6 +7,9 @@ export type Facility = {
   specialties: string;
   emergency: boolean;
   position: [number, number];
+
+  rating: number;
+  reviewCount: number;
 };
 
 export const facilities: Facility[] = [
@@ -19,7 +22,11 @@ export const facilities: Facility[] = [
     specialties: "General Medicine • Cardiology • Orthopedics",
     position: [10.7905, 78.7047],
     emergency: true,
+
+    rating: 4.4,
+    reviewCount: 126,
   },
+
   {
     name: "HealthFirst Medical Centre",
     type: "Clinic",
@@ -29,7 +36,11 @@ export const facilities: Facility[] = [
     specialties: "General Medicine • Dermatology",
     position: [10.7972, 78.6851],
     emergency: false,
+
+    rating: 4.2,
+    reviewCount: 84,
   },
+
   {
     name: "Wellness Care Hospital",
     type: "Hospital",
@@ -39,5 +50,8 @@ export const facilities: Facility[] = [
     specialties: "Pediatrics • Neurology • General Medicine",
     position: [10.7756, 78.7198],
     emergency: true,
+
+    rating: 4.6,
+    reviewCount: 203,
   },
 ];

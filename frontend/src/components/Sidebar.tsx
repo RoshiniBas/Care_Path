@@ -8,24 +8,38 @@ import {
   Settings,
   AlertTriangle,
   HelpCircle,
+  Menu,
 } from "lucide-react";
 
-import { NavLink } from "react-router-dom";
-import {useNavigate} from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export default function Sidebar() {
   const navigate = useNavigate();
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
+
+      {/* Hamburger */}
+      <button
+        className="sidebar-toggle"
+        onClick={() => setCollapsed(!collapsed)}
+        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        <Menu size={21} />
+      </button>
 
       {/* Logo */}
       <div className="logo">
         <div className="logo-icon">✚</div>
 
-        <div>
-          <h2>CarePath</h2>
-          <span>AI Healthcare Navigation</span>
-        </div>
+        {!collapsed && (
+          <div className="logo-text">
+            <h2>CarePath</h2>
+            <span>AI Healthcare Navigation</span>
+          </div>
+        )}
       </div>
 
       {/* Main Navigation */}
@@ -33,6 +47,7 @@ export default function Sidebar() {
 
         <NavLink
           to="/"
+          title="Home"
           className={({ isActive }) =>
             `nav-item ${isActive ? "active" : ""}`
           }
@@ -43,6 +58,7 @@ export default function Sidebar() {
 
         <NavLink
           to="/chat"
+          title="Chat"
           className={({ isActive }) =>
             `nav-item ${isActive ? "active" : ""}`
           }
@@ -53,6 +69,7 @@ export default function Sidebar() {
 
         <NavLink
           to="/facilities"
+          title="Find Facilities"
           className={({ isActive }) =>
             `nav-item ${isActive ? "active" : ""}`
           }
@@ -63,6 +80,7 @@ export default function Sidebar() {
 
         <NavLink
           to="/specialists"
+          title="Specialists"
           className={({ isActive }) =>
             `nav-item ${isActive ? "active" : ""}`
           }
@@ -73,6 +91,7 @@ export default function Sidebar() {
 
         <NavLink
           to="/appointments"
+          title="Appointments"
           className={({ isActive }) =>
             `nav-item ${isActive ? "active" : ""}`
           }
@@ -83,6 +102,7 @@ export default function Sidebar() {
 
         <NavLink
           to="/saved"
+          title="Saved"
           className={({ isActive }) =>
             `nav-item ${isActive ? "active" : ""}`
           }
@@ -98,6 +118,7 @@ export default function Sidebar() {
 
         <button
           className="nav-item"
+          title="Emergency"
           onClick={() =>
             navigate("/facilities", {
               state: {
@@ -110,12 +131,18 @@ export default function Sidebar() {
           <span>Emergency</span>
         </button>
 
-        <button className="nav-item">
+        <button
+          className="nav-item"
+          title="Settings"
+        >
           <Settings size={19} />
           <span>Settings</span>
         </button>
 
-        <button className="nav-item">
+        <button
+          className="nav-item"
+          title="Help & Support"
+        >
           <HelpCircle size={19} />
           <span>Help & Support</span>
         </button>

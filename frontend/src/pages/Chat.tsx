@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import {
   ArrowUp,
   CalendarDays,
@@ -16,6 +16,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 
 import CarePathVoice from "../components/CarePathVoice";
+import { useLanguage } from "../context/LanguageContext";
 
 
 type Message = {
@@ -25,6 +26,7 @@ type Message = {
 };
 
 export default function Chat() {
+  const { language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -92,6 +94,7 @@ const [actionContext, setActionContext] = useState<
       },
       body: JSON.stringify({
         message: text,
+        language: language,
       }),
     });
 
@@ -198,6 +201,7 @@ if (tool === "find_specialists") {
               Online
             </div>
           </div>
+          <LanguageSwitcher />
 
         </div>
 

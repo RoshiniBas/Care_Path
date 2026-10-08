@@ -8,7 +8,7 @@ import {
   RoomAudioRenderer,
 } from "@livekit/components-react";
 
-import {TokenSource, Track } from "livekit-client";
+import { TokenSource, Track } from "livekit-client";
 
 import "@livekit/components-styles";
 
@@ -22,18 +22,20 @@ function AvatarView() {
   return (
     <div className="carepath-avatar">
       {cameraTracks.length > 0 ? (
-        cameraTracks.map((track) => (
-          <VideoTrack
-            key={track.publication.trackSid}
-            trackRef={track}
-          />
-        ))
+        cameraTracks.map((track) => {
+          if (!track.publication) return null;
+
+          return (
+            <VideoTrack
+              key={track.publication.trackSid}
+              trackRef={track as any}
+            />
+          );
+        })
       ) : (
         <div className="avatar-placeholder">
           <div className="avatar-circle">C</div>
-
           <p>CarePath AI</p>
-
           <span>Waiting for avatar...</span>
         </div>
       )}
@@ -49,54 +51,81 @@ function VoiceSession({
   autoStart: boolean;
 }) {
   const [started, setStarted] = useState(false);
+  const [starting, setStarting] = useState(false);
 
   useEffect(() => {
-  if (!autoStart || started) return;
+    if (!autoStart || started || starting) return;
 
-  const startAutomatically = async () => {
-  console.log("🤖 Auto-starting CarePath voice...");
+    const startAutomatically = async () => {
+      try {
+        setStarting(true);
 
-  try {
-    await session.start();
+        console.log("🤖 Auto-starting CarePath voice...");
 
-    console.log("✅ LiveKit auto-start successful!");
+        await session.start();
 
-    setStarted(true);
-  } catch (error) {
-    console.error("❌ LiveKit auto-start failed:", error);
-  }
-};
+        console.log("✅ LiveKit session started!");
 
-  startAutomatically();
-}, [autoStart, session, started]);
+        setStarted(true);
+      } catch (error) {
+        console.error("❌ LiveKit auto-start failed:", error);
+      } finally {
+        setStarting(false);
+      }
+    };
+
+    startAutomatically();
+  }, [autoStart, started, starting, session]);
 
   const startConversation = async () => {
-  console.log("🎤 Starting CarePath voice session...");
+    if (starting || started) return;
 
-  try {
-    await session.start();
+    console.log("🎤 Starting CarePath voice session...");
 
-    console.log("✅ LiveKit session started!");
+    try {
+      setStarting(true);
 
-    setStarted(true);
-  } catch (error) {
-    console.error("❌ LiveKit connection failed:", error);
-  }
-};
+      console.log("⏳ Calling session.start()...");
+
+      await session.start();
+
+      console.log("✅ LiveKit session started!");
+
+      setStarted(true);
+    } catch (error) {
+      console.error("❌ LiveKit connection failed:", error);
+
+      if (error instanceof Error) {
+        console.error("❌ Error message:", error.message);
+        console.error("❌ Error stack:", error.stack);
+
+        alert(`CarePath voice failed:\n\n${error.message}`);
+      } else {
+        alert(`CarePath voice failed:\n\n${String(error)}`);
+      }
+    } finally {
+      setStarting(false);
+    }
+  };
 
   const stopConversation = async () => {
-    await session.end();
+    try {
+      await session.end();
+    } catch (error) {
+      console.error("❌ Error ending session:", error);
+    }
+
     setStarted(false);
   };
 
-
   return (
     <div className="carepath-voice-container">
-
       <AvatarView />
 
       <div className="voice-status">
-        {started
+        {starting
+          ? "Connecting to CarePath..."
+          : started
           ? "CarePath is listening..."
           : "Ready to talk"}
       </div>
@@ -105,8 +134,9 @@ function VoiceSession({
         <button
           className="start-voice-button"
           onClick={startConversation}
+          disabled={starting}
         >
-          🎤 Start conversation
+          {starting ? "Connecting..." : "🎤 Start conversation"}
         </button>
       ) : (
         <button
@@ -116,7 +146,6 @@ function VoiceSession({
           End conversation
         </button>
       )}
-
     </div>
   );
 }
@@ -126,16 +155,13 @@ export default function CarePathVoice({
 }: {
   autoStart?: boolean;
 }) {
-  const tokenSource =
-    TokenSource.developmentTokenServer(
-      TOKEN_SERVER_ID
-    );
-
   const [roomName] = useState(
     () => `carepath-${crypto.randomUUID()}`
   );
 
-  console.log("🏠 CarePath room:", roomName);
+  const tokenSource = TokenSource.developmentTokenServer(
+    TOKEN_SERVER_ID
+  );
 
   const session = useSession(tokenSource, {
     roomName,
@@ -148,6 +174,7 @@ export default function CarePathVoice({
         session={session}
         autoStart={autoStart}
       />
+
       <RoomAudioRenderer />
     </SessionProvider>
   );

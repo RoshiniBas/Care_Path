@@ -179,9 +179,19 @@ useEffect(() => {
     )}
   </div>
 
+  <div className="facility-card-meta">
+  <span className="facility-rating">
+    ⭐ {facility.rating?.toFixed(1)}
+  </span>
+
+  <span className="review-count">
+    ({facility.reviewCount} reviews)
+  </span>
+
   <span className="distance">
     {facility.distance}
   </span>
+</div>
 </div>
         <div className="facility-detail">
           <MapPin size={15} />
